@@ -448,12 +448,17 @@
         function openInMaps(lat, lng, name) {
             const encodedName = encodeURIComponent(name);
             
-            // Check if mobile device
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            // Check if iOS
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            // Check if Android
+            const isAndroid = /Android/i.test(navigator.userAgent);
             
-            if (isMobile) {
-                // On mobile, use geo: URI scheme to open default map app
-                window.location.href = `geo:${lat},${lng}?q=${lat},${lng}(${encodedName})`;
+            if (isIOS) {
+                // On iOS, use Apple Maps URL scheme
+                window.location.href = `maps://maps.apple.com/?q=${encodedName}&ll=${lat},${lng}`;
+            } else if (isAndroid) {
+                // On Android, use Google Maps intent
+                window.location.href = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
             } else {
                 // On desktop, open Google Maps in new tab
                 window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`, '_blank');
