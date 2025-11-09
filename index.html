@@ -447,22 +447,59 @@
 
         function openInMaps(lat, lng, name) {
             const encodedName = encodeURIComponent(name);
+            const coords = `${lat},${lng}`;
             
-            // Check if iOS
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-            // Check if Android
-            const isAndroid = /Android/i.test(navigator.userAgent);
+            const optionsMessage = `📍 ${name}\n\nOpen in your preferred map app:\n\n` +
+                                 `1. Google Maps\n` +
+                                 `2. Apple Maps\n` +
+                                 `3. Waze\n` +
+                                 `4. Copy coordinates\n\n` +
+                                 `Enter choice (1-4):`;
             
-            if (isIOS) {
-                // On iOS, use Apple Maps URL scheme
-                window.location.href = `maps://maps.apple.com/?q=${encodedName}&ll=${lat},${lng}`;
-            } else if (isAndroid) {
-                // On Android, use Google Maps intent
-                window.location.href = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-            } else {
-                // On desktop, open Google Maps in new tab
-                window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`, '_blank');
+            const choice = prompt(optionsMessage);
+            
+            switch(choice) {
+                case '1':
+                    window.open(`https://www.google.com/maps/search/?api=1&query=${coords}`, '_blank');
+                    break;
+                case '2':
+                    window.open(`http://maps.apple.com/?q=${encodedName}&ll=${coords}`, '_blank');
+                    break;
+                case '3':
+                    window.open(`https://waze.com/ul?ll=${coords}&navigate=yes&zoom=17`, '_blank');
+                    break;
+                case '4':
+                    copyCoordinates(lat, lng, name);
+                    break;
+                default:
+                    if (choice !== null) {
+                        alert('Invalid choice. Please try again.');
+                    }
             }
+        }
+
+        function copyCoordinates(lat, lng, name) {
+            const coords = `${lat}, ${lng}`;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(coords).then(() => {
+                    alert(`📋 Coordinates copied to clipboard!\n\n${name}\n${coords}\n\nYou can paste this into any map app.`);
+                }).catch(() => {
+                    showCoordinatesManually(lat, lng, name, coords);
+                });
+            } else {
+                showCoordinatesManually(lat, lng, name, coords);
+            }
+        }
+
+        function showCoordinatesManually(lat, lng, name, coords) {
+            const message = `📍 ${name}\n\nCoordinates: ${coords}\n\n` +
+                           `Copy these coordinates and paste them into your preferred map app:\n\n` +
+                           `• Google Maps: Search for "${coords}"\n` +
+                           `• Apple Maps: Search for "${coords}"\n` +
+                           `• Any GPS app: Enter these coordinates`;
+            
+            alert(message);
         }
 
         function centerMap() {
